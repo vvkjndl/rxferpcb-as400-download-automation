@@ -1,4 +1,4 @@
-This script will help you to download multiple files from AS400 without the pain of dealing with manual GUI transfers.
+This script will help you to download multiple files from AS400 without the pain of dealing with manual GUI transfers. Files are downloaded in Excel format (BIFF 8.0).
 
 While you can create multiple transfer files and then run them in batch but it is very time-consuming to create a transfer file for individual files to be downloaded. With this script you only have to create a single text file containing a list of all files to be downloaded.  
 ![Text file input](https://raw.githubusercontent.com/vivekjindal/rxferpcb-ibmi-download-automation/master/images/screenshot1.png)
@@ -6,7 +6,7 @@ While you can create multiple transfer files and then run them in batch but it i
 # Usage
 1. IBM i Access for Windows must be installed.
 2. 7-Zip must be installed. __(Optional)__
-2. Create a text (.txt) file on your desktop and enter list of files; save the file and close.
+2. Create a text (.txt) file on your desktop and enter the list of files. Save the file and close.
 3. Run the script and enter the name of the file you just saved without extension (.txt).
 4. Enter userid, password, library name and host/ip name. Download will start.  
 ![Script interaction](https://raw.githubusercontent.com/vivekjindal/rxferpcb-ibmi-download-automation/master/images/screenshot2.png)
