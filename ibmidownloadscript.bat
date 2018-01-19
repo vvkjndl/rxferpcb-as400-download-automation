@@ -9,7 +9,7 @@
 :config
 set /P "filename=Enter text file name on your desktop containing list of files to download: "
 set "workpath=%userprofile%\desktop"
-IF EXIST %workpath%\%filename%.txt (echo.) ELSE (echo File name didn't match. Please try again && goto config)
+IF EXIST %workpath%\%filename%.txt (echo.) ELSE (echo File name didn't match. Try again && goto config)
 mkdir %workpath%\%filename% > nul 2> nul
 set /P "userid=Enter userid: "
 set /P "password=Enter password: "
