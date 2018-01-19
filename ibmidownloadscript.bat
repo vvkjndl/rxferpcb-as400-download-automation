@@ -1,164 +1,161 @@
 @echo off
 
-rem	#################################################################################################
-rem		Author: 				FNFIS\e3025459
-rem 	Script:					Script to download multiple files from IBM i with least efforts
-rem	#################################################################################################
+:: ################################################################################################
+:: Script Repository URL:		https://github.com/vivekjindal/rxferpcb-ibmi-download-automation
+:: ################################################################################################
 
 
-rem		Initiliaze file/folder variables
-:filefoldersubroutine
-set /P "inputfilename=Enter text file name on desktop containing list of files to download: "
-IF EXIST %userprofile%\desktop\%inputfilename%.txt (echo.) ELSE (echo Incorrect file name. Please try again && goto filefoldersubroutine)
-set "input=%userprofile%\desktop\%inputfilename%.txt"
-mkdir %userprofile%\desktop\%inputfilename%
-set "workingdir=%userprofile%\desktop\%inputfilename%"
-set "filenameold=empty"
-
-
-rem		Initialize authentication variables
+:: script configuration
+:config
+set /P "filename=Enter text file name on your desktop containing list of files to download: "
+set "workpath=%userprofile%\desktop"
+IF EXIST %workpath%\%filename%.txt (echo.) ELSE (echo File name didn't match. Please try again && goto config)
+mkdir %workpath%\%filename% > nul 2> nul
 set /P "userid=Enter userid: "
 set /P "password=Enter password: "
-
-rem		Initialize IBM i variables
 set /P "libname=Enter library name: "
-set /P "host=Enter Hostname/IP of LPAR: "
+set /P "hostname=Enter Hostname/IP of LPAR: "
+set "filestring1=empty"
+echo.
 
-rem		Record start date/time
+:: record start date/time
 set "starttime=%date% %time%"
 
-rem		Create a generic IBM i dtf file
-echo [DataTransferFromAS400] > %workingdir%\ibmigeneric.dtf
-echo Version=2.0 >> %workingdir%\ibmigeneric.dtf
-echo [HostInfo] >> %workingdir%\ibmigeneric.dtf
-echo Database=*SYSBAS >> %workingdir%\ibmigeneric.dtf
-echo HostFile=%libname%/empty >> %workingdir%\ibmigeneric.dtf
-echo HostName=%host% >> %workingdir%\ibmigeneric.dtf
-echo [ClientInfo] >> %workingdir%\ibmigeneric.dtf
-echo ASCIITruncation=1 >> %workingdir%\ibmigeneric.dtf
-echo ConvType=5 >> %workingdir%\ibmigeneric.dtf
-echo CrtOpt=1 >> %workingdir%\ibmigeneric.dtf
-echo FDFFile=%workingdir%\empty.FDF >> %workingdir%\ibmigeneric.dtf
-echo FDFFormat=1 >> %workingdir%\ibmigeneric.dtf
-echo FileOps=503209343 >> %workingdir%\ibmigeneric.dtf
-echo OutputDevice=2 >> %workingdir%\ibmigeneric.dtf
-echo PCFile=%workingdir%\empty.xls >> %workingdir%\ibmigeneric.dtf
-echo PCFileType=16 >> %workingdir%\ibmigeneric.dtf
-echo SaveFDF=0 >> %workingdir%\ibmigeneric.dtf
-echo [SQL] >> %workingdir%\ibmigeneric.dtf
-echo EnableGroup=0 >> %workingdir%\ibmigeneric.dtf
-echo GroupBy= >> %workingdir%\ibmigeneric.dtf
-echo Having= >> %workingdir%\ibmigeneric.dtf
-echo JoinBy= >> %workingdir%\ibmigeneric.dtf
-echo MissingFields=0 >> %workingdir%\ibmigeneric.dtf
-echo OrderBy= >> %workingdir%\ibmigeneric.dtf
-echo SQLSelect= >> %workingdir%\ibmigeneric.dtf
-echo Select=* >> %workingdir%\ibmigeneric.dtf
-echo Where= >> %workingdir%\ibmigeneric.dtf
-echo [Options] >> %workingdir%\ibmigeneric.dtf
-echo DateFmt=MDY >> %workingdir%\ibmigeneric.dtf
-echo DateSep=[/] >> %workingdir%\ibmigeneric.dtf
-echo DecimalSep=. >> %workingdir%\ibmigeneric.dtf
-echo IgnoreDecErr=1 >> %workingdir%\ibmigeneric.dtf
-echo Lang=0 >> %workingdir%\ibmigeneric.dtf
-echo LangID= >> %workingdir%\ibmigeneric.dtf
-echo SortSeq=0 >> %workingdir%\ibmigeneric.dtf
-echo SortTable= >> %workingdir%\ibmigeneric.dtf
-echo TimeFmt=HMS >> %workingdir%\ibmigeneric.dtf
-echo TimeSep=[:] >> %workingdir%\ibmigeneric.dtf
-echo [HTML] >> %workingdir%\ibmigeneric.dtf
-echo AutoSize=0 >> %workingdir%\ibmigeneric.dtf
-echo AutoSizeKB=128 >> %workingdir%\ibmigeneric.dtf
-echo CapAlign=0 >> %workingdir%\ibmigeneric.dtf
-echo CapIncNum=0 >> %workingdir%\ibmigeneric.dtf
-echo CapSize=6 >> %workingdir%\ibmigeneric.dtf
-echo CapStyle=1 >> %workingdir%\ibmigeneric.dtf
-echo Caption= >> %workingdir%\ibmigeneric.dtf
-echo CellAlignN=0 >> %workingdir%\ibmigeneric.dtf
-echo CellAlignT=0 >> %workingdir%\ibmigeneric.dtf
-echo CellSize=6 >> %workingdir%\ibmigeneric.dtf
-echo CellWrap=1 >> %workingdir%\ibmigeneric.dtf
-echo Charset= >> %workingdir%\ibmigeneric.dtf
-echo ConvInd=0 >> %workingdir%\ibmigeneric.dtf
-echo DateTimeLoc=0 >> %workingdir%\ibmigeneric.dtf
-echo IncDateTime=0 >> %workingdir%\ibmigeneric.dtf
-echo OverWrite=1 >> %workingdir%\ibmigeneric.dtf
-echo RowAlignGenH=0 >> %workingdir%\ibmigeneric.dtf
-echo RowAlignGenV=0 >> %workingdir%\ibmigeneric.dtf
-echo RowAlignHdrH=0 >> %workingdir%\ibmigeneric.dtf
-echo RowAlignHdrV=0 >> %workingdir%\ibmigeneric.dtf
-echo RowStyleGen=1 >> %workingdir%\ibmigeneric.dtf
-echo RowSytleHdr=1 >> %workingdir%\ibmigeneric.dtf
-echo TabAlign=0 >> %workingdir%\ibmigeneric.dtf
-echo TabBW=1 >> %workingdir%\ibmigeneric.dtf
-echo TabCP=1 >> %workingdir%\ibmigeneric.dtf
-echo TabCS=1 >> %workingdir%\ibmigeneric.dtf
-echo TabCols=2 >> %workingdir%\ibmigeneric.dtf
-echo TabMap=1 >> %workingdir%\ibmigeneric.dtf
-echo TabRows=2 >> %workingdir%\ibmigeneric.dtf
-echo TabWidth=100 >> %workingdir%\ibmigeneric.dtf
-echo TabWidthP=0 >> %workingdir%\ibmigeneric.dtf
-echo Template= >> %workingdir%\ibmigeneric.dtf
-echo TemplateTag= >> %workingdir%\ibmigeneric.dtf
-echo Title= >> %workingdir%\ibmigeneric.dtf
-echo UseTemplate=0 >> %workingdir%\ibmigeneric.dtf
-echo [Properties] >> %workingdir%\ibmigeneric.dtf
-echo AutoClose=0 >> %workingdir%\ibmigeneric.dtf
-echo AutoRun=0 >> %workingdir%\ibmigeneric.dtf
-echo Check4Untrans=0 >> %workingdir%\ibmigeneric.dtf
-echo Convert65535=0 >> %workingdir%\ibmigeneric.dtf
-echo DisSysName=0 >> %workingdir%\ibmigeneric.dtf
-echo DispLongSchemaName=1 >> %workingdir%\ibmigeneric.dtf
-echo Notify=1 >> %workingdir%\ibmigeneric.dtf
-echo SQLStmt=0 >> %workingdir%\ibmigeneric.dtf
-echo ShowWarnings=31 >> %workingdir%\ibmigeneric.dtf
-echo StoreDecFAsChar=1 >> %workingdir%\ibmigeneric.dtf
-echo UseAlias=1 >> %workingdir%\ibmigeneric.dtf
-echo UseCompression=1 >> %workingdir%\ibmigeneric.dtf
-echo UseSSL=2 >> %workingdir%\ibmigeneric.dtf
-echo UserOption=0 >> %workingdir%\ibmigeneric.dtf
+:: create IBM i dtf file
+echo [DataTransferFromAS400] > %workpath%\%filename%\%filename%.dtf
+echo Version=2.0 >> %workpath%\%filename%\%filename%.dtf
+echo [HostInfo] >> %workpath%\%filename%\%filename%.dtf
+echo Database=*SYSBAS >> %workpath%\%filename%\%filename%.dtf
+echo HostFile=%libname%/%filestring1% >> %workpath%\%filename%\%filename%.dtf
+echo HostName=%hostname% >> %workpath%\%filename%\%filename%.dtf
+echo [ClientInfo] >> %workpath%\%filename%\%filename%.dtf
+echo ASCIITruncation=1 >> %workpath%\%filename%\%filename%.dtf
+echo ConvType=5 >> %workpath%\%filename%\%filename%.dtf
+echo CrtOpt=1 >> %workpath%\%filename%\%filename%.dtf
+echo FDFFile=%workpath%\%filename%\%filestring1%.fdf >> %workpath%\%filename%\%filename%.dtf
+echo FDFFormat=1 >> %workpath%\%filename%\%filename%.dtf
+echo FileOps=503209343 >> %workpath%\%filename%\%filename%.dtf
+echo OutputDevice=2 >> %workpath%\%filename%\%filename%.dtf
+echo PCFile=%workpath%\%filename%\%filestring1%.xls >> %workpath%\%filename%\%filename%.dtf
+echo PCFileType=16 >> %workpath%\%filename%\%filename%.dtf
+echo SaveFDF=0 >> %workpath%\%filename%\%filename%.dtf
+echo [SQL] >> %workpath%\%filename%\%filename%.dtf
+echo EnableGroup=0 >> %workpath%\%filename%\%filename%.dtf
+echo GroupBy= >> %workpath%\%filename%\%filename%.dtf
+echo Having= >> %workpath%\%filename%\%filename%.dtf
+echo JoinBy= >> %workpath%\%filename%\%filename%.dtf
+echo MissingFields=0 >> %workpath%\%filename%\%filename%.dtf
+echo OrderBy= >> %workpath%\%filename%\%filename%.dtf
+echo SQLSelect= >> %workpath%\%filename%\%filename%.dtf
+echo Select=* >> %workpath%\%filename%\%filename%.dtf
+echo Where= >> %workpath%\%filename%\%filename%.dtf
+echo [Options] >> %workpath%\%filename%\%filename%.dtf
+echo DateFmt=MDY >> %workpath%\%filename%\%filename%.dtf
+echo DateSep=[/] >> %workpath%\%filename%\%filename%.dtf
+echo DecimalSep=. >> %workpath%\%filename%\%filename%.dtf
+echo IgnoreDecErr=1 >> %workpath%\%filename%\%filename%.dtf
+echo Lang=0 >> %workpath%\%filename%\%filename%.dtf
+echo LangID= >> %workpath%\%filename%\%filename%.dtf
+echo SortSeq=0 >> %workpath%\%filename%\%filename%.dtf
+echo SortTable= >> %workpath%\%filename%\%filename%.dtf
+echo TimeFmt=HMS >> %workpath%\%filename%\%filename%.dtf
+echo TimeSep=[:] >> %workpath%\%filename%\%filename%.dtf
+echo [HTML] >> %workpath%\%filename%\%filename%.dtf
+echo AutoSize=0 >> %workpath%\%filename%\%filename%.dtf
+echo AutoSizeKB=128 >> %workpath%\%filename%\%filename%.dtf
+echo CapAlign=0 >> %workpath%\%filename%\%filename%.dtf
+echo CapIncNum=0 >> %workpath%\%filename%\%filename%.dtf
+echo CapSize=6 >> %workpath%\%filename%\%filename%.dtf
+echo CapStyle=1 >> %workpath%\%filename%\%filename%.dtf
+echo Caption= >> %workpath%\%filename%\%filename%.dtf
+echo CellAlignN=0 >> %workpath%\%filename%\%filename%.dtf
+echo CellAlignT=0 >> %workpath%\%filename%\%filename%.dtf
+echo CellSize=6 >> %workpath%\%filename%\%filename%.dtf
+echo CellWrap=1 >> %workpath%\%filename%\%filename%.dtf
+echo Charset= >> %workpath%\%filename%\%filename%.dtf
+echo ConvInd=0 >> %workpath%\%filename%\%filename%.dtf
+echo DateTimeLoc=0 >> %workpath%\%filename%\%filename%.dtf
+echo IncDateTime=0 >> %workpath%\%filename%\%filename%.dtf
+echo OverWrite=1 >> %workpath%\%filename%\%filename%.dtf
+echo RowAlignGenH=0 >> %workpath%\%filename%\%filename%.dtf
+echo RowAlignGenV=0 >> %workpath%\%filename%\%filename%.dtf
+echo RowAlignHdrH=0 >> %workpath%\%filename%\%filename%.dtf
+echo RowAlignHdrV=0 >> %workpath%\%filename%\%filename%.dtf
+echo RowStyleGen=1 >> %workpath%\%filename%\%filename%.dtf
+echo RowSytleHdr=1 >> %workpath%\%filename%\%filename%.dtf
+echo TabAlign=0 >> %workpath%\%filename%\%filename%.dtf
+echo TabBW=1 >> %workpath%\%filename%\%filename%.dtf
+echo TabCP=1 >> %workpath%\%filename%\%filename%.dtf
+echo TabCS=1 >> %workpath%\%filename%\%filename%.dtf
+echo TabCols=2 >> %workpath%\%filename%\%filename%.dtf
+echo TabMap=1 >> %workpath%\%filename%\%filename%.dtf
+echo TabRows=2 >> %workpath%\%filename%\%filename%.dtf
+echo TabWidth=100 >> %workpath%\%filename%\%filename%.dtf
+echo TabWidthP=0 >> %workpath%\%filename%\%filename%.dtf
+echo Template= >> %workpath%\%filename%\%filename%.dtf
+echo TemplateTag= >> %workpath%\%filename%\%filename%.dtf
+echo Title= >> %workpath%\%filename%\%filename%.dtf
+echo UseTemplate=0 >> %workpath%\%filename%\%filename%.dtf
+echo [Properties] >> %workpath%\%filename%\%filename%.dtf
+echo AutoClose=1 >> %workpath%\%filename%\%filename%.dtf
+echo AutoRun=1 >> %workpath%\%filename%\%filename%.dtf
+echo Check4Untrans=0 >> %workpath%\%filename%\%filename%.dtf
+echo Convert65535=0 >> %workpath%\%filename%\%filename%.dtf
+echo DisSysName=1 >> %workpath%\%filename%\%filename%.dtf
+echo DispLongSchemaName=1 >> %workpath%\%filename%\%filename%.dtf
+echo Notify=1 >> %workpath%\%filename%\%filename%.dtf
+echo SQLStmt=0 >> %workpath%\%filename%\%filename%.dtf
+echo ShowWarnings=0 >> %workpath%\%filename%\%filename%.dtf
+echo StoreDecFAsChar=1 >> %workpath%\%filename%\%filename%.dtf
+echo UseAlias=1 >> %workpath%\%filename%\%filename%.dtf
+echo UseCompression=1 >> %workpath%\%filename%\%filename%.dtf
+echo UseSSL=0 >> %workpath%\%filename%\%filename%.dtf
+echo UserOption=2 >> %workpath%\%filename%\%filename%.dtf
 
-rem		Read the input file and call secondary function
-for /F "delims=" %%a IN (%input%) do (call :sandrsubroutine %%a)
-del %workingdir%\ibmigeneric.dtf
+:: read the file and call file replace function
+for /F "delims=" %%a IN (%workpath%\%filename%.txt) do (call :replacefilename %%a)
 
-rem		Perform ZIP operation
-echo.
-echo.
-echo.
-echo Searching for 7-Zip 32-bit functionality
-IF EXIST "%programfiles(x86)%\7-Zip\7z.exe" (echo 7-Zip 32-Bit found. && "%programfiles(x86)%\7-Zip"\7z.exe a -tzip -mx1 -mmt=on %userprofile%\desktop\%inputfilename%.zip %workingdir% && goto :end) else (echo ***7-Zip 32-Bit not found. Trying with 7-Zip 64-Bit.***)
-echo.
-IF EXIST "%programfiles%\7-Zip\7z.exe" (echo 7-Zip 64-Bit found. && "%programfiles%\7-Zip"\7z.exe a -tzip -mx1 -mmt=on %userprofile%\desktop\%inputfilename%.zip %workingdir%) else (echo *****7-Zip 64-Bit wasn't found either. Please do manual compression.*****)
-
-:end
-rem		Perform deletion
-rem		***Commenting this out. It's too risky to delete the files in case ZIP operation fails.*** rmdir /S /Q %userprofile%\desktop\%inputfilename%
-
-rem		Record end date/time
+:: record end date/time
 set "endtime=%date% %time%"
 
-rem		Print start/end and date/time, and end the script
-echo.
-echo.
+:: perform cleanup and zip operation
+del %workpath%\%filename%\%filename%.dtf > nul 2> nul
+del %workpath%\%filename%\%filename%.log > nul 2> nul
+del %workpath%\%filename%.zip > nul 2> nul
+echo. && echo.
+echo Checking if 7-Zip is installed...
+IF EXIST "%programfiles(x86)%\7-Zip\7z.exe" ("%programfiles(x86)%\7-Zip"\7z.exe a -tzip -mx1 -mmt=on %workpath%\%filename%.zip %workpath%\%filename%\* && goto :zipend)
+IF EXIST "%programfiles%\7-Zip\7z.exe" ("%programfiles%\7-Zip"\7z.exe a -tzip -mx1 -mmt=on %workpath%\%filename%.zip %workpath%\%filename%\* && goto :zipend)
+echo 7-Zip installation not found.
+goto nozipend
+
+:: end the script
+:zipend
+rd /S /Q %workpath%\%filename%
+:nozipend
+echo. && echo.
 echo Script started at %starttime%.
 echo Script completed at %endtime%.
+echo.
 pause
-GOTO :eof
+goto :eof
 
-rem		Do the Magic!
-:sandrsubroutine
-set "filenamenew=%1"
-echo Currently downloading %filenamenew%.
-for /F "delims=" %%b in ('type "%workingdir%\ibmigeneric.dtf" ^& break ^> "%workingdir%\ibmigeneric.dtf" ') do (
-	set "line=%%b"
-	setlocal enabledelayedexpansion
-	set "line=!line:%filenameold%=%filenamenew%!"
-	>>"%workingdir%\ibmigeneric.dtf" echo(!line!
-	endlocal
+:: peform the string replacement
+:replacefilename
+set "filestring2=%1"
+echo.
+echo Currently downloading %filestring2%.
+for /F "delims=" %%b IN ('type "%workpath%\%filename%\%filename%.dtf" ^& break ^> "%workpath%\%filename%\%filename%.dtf"') do (
+    set "line=%%b"
+    setlocal enabledelayedexpansion
+    set "line=!line:%filestring1%=%filestring2%!"
+    >>"%workpath%\%filename%\%filename%.dtf" echo(!line!
+    endlocal
 )
 
-rem		Start downloading
-rxferpcb.exe "%workingdir%"\ibmigeneric.dtf  %userid% %password% >> %userprofile%\desktop\%inputfilename%_scriptlogs.log
-set "filenameold=%filenamenew%"
+:: start downloading
+rxferpcb.exe %workpath%\%filename%\%filename%.dtf %userid% %password% > %workpath%\%filename%\%filename%.log
+findstr /L /C:SUCCESSFUL %workpath%\%filename%\%filename%.log > nul
+if %ERRORLEVEL%==1 (echo Download failed.) else (echo Download Successful.)
+set "filestring1=%filestring2%"
 GOTO :eof
