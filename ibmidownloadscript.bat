@@ -1,7 +1,7 @@
 @echo off
 
 :: ################################################################################################
-:: Script Repository URL:	https://github.com/vivekjindal/rxferpcb-ibmi-download-automation
+:: Script Repository URL:	https://github.com/vivekjindal/rxferpcb-as400-download-automation
 :: ################################################################################################
 
 
