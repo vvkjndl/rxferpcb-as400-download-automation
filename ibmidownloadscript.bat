@@ -2,7 +2,7 @@
 
 :: ################################################################################################
 :: Script Repository URL:	https://github.com/vivekjindal/rxferpcb-as400-download-automation
-:: Written by:  vivek.511201@gmail.com
+:: Written by:              vivek.511201@gmail.com
 :: ################################################################################################
 
 
