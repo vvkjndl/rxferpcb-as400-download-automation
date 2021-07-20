@@ -15,9 +15,9 @@ With this script you only have to create a single text file containing a list of
 
 ![Script interaction](https://raw.githubusercontent.com/vivekjindal/rxferpcb-ibmi-download-automation/master/images/screenshot2.png)
 
-Script will inform you which file is currently being downloaded. Which was downloaded successfully and which one failed.
+Script will inform you which file is currently being downloaded; which one was downloaded successfully and which one failed.
 
-Once the download completes script will check if you have 7-Zip installed in your computer. If 7-Zip installation is found then script will zip the files and remove the downloaded files else it will skip the zip and delete operations.
+Once the download completes, script will check if you have 7-Zip installed in your computer. If 7-Zip installation is found then script will zip the files and remove the downloaded files else it will skip the zip and deletion operations.
 
 Script will print the start and end time so that you can get an idea about how long it took if the input text file contained a lot of files.
 
