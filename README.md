@@ -11,7 +11,7 @@ With this script you only have to create a single text file containing a list of
 - 7-Zip must be installed. __(Optional)__
 - Create a text (.txt) file on your desktop and enter the list of files. Save the file and close.
 - Run the script and enter the name of the file you just saved without extension (.txt).
-- Enter userid, password, library name and host/ip name; Download will start.
+- Enter userid, password, library name and host/ip name; download will start.
 
 ![Script interaction](https://raw.githubusercontent.com/vivekjindal/rxferpcb-ibmi-download-automation/master/images/screenshot2.png)
 
